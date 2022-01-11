@@ -6,8 +6,10 @@ from django.core.validators import MinValueValidator
 User = get_user_model()
 
 class Tag(models.Model):
+    """Описывает поля модели для тега"""
+
     name = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True,
         verbose_name=('Название тега'),
     )
@@ -32,15 +34,16 @@ class Tag(models.Model):
         return self.name
 
 class Ingredient(models.Model):
+    """Описывает поля модели для ингредиента"""
 
     name = models.CharField(
-        verbose_name='Название ингредиента',
         max_length=200,
-        db_index=True
+        db_index=True,
+        verbose_name='Название ингредиента',
     )
     unit = models.CharField(
+        max_length=100,
         verbose_name='Единица измерения',
-        max_length=20
     )
 
     class Meta:
@@ -49,16 +52,17 @@ class Ingredient(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return self.name
+        return f'{self.name}{self.unit}'
 
 
 class Recipe(models.Model):
+    """Описывает поля модели для рецепта"""
+
     author = models.ForeignKey(
         User,
-        related_name='recipes',
-        on_delete=models.SET_NULL,
-        null=True,
+        on_delete=models.CASCADE,
         verbose_name=('Автор'),
+        related_name='recipes',
     )
     name = models.CharField(
         max_length=200,
@@ -74,15 +78,15 @@ class Recipe(models.Model):
 
     ingredients = models.ManyToManyField(
     Ingredient,
+    through='IngredientAmountShop',
     related_name='recipes',
-    through='IngredientAmount',
     verbose_name=('Ингредиенты'),
     )
 
     tags = models.ManyToManyField(
         Tag,
         related_name='recipes',
-        verbose_name=('Тэг'),
+        verbose_name=('Тег'),
     )
 
     cook_time = models.PositiveSmallIntegerField(
@@ -90,7 +94,7 @@ class Recipe(models.Model):
         verbose_name=('Время приготовления'),
     )
 
-    date = models.DateTimeField(
+    pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name=('Дата публикации'),
     )
@@ -100,13 +104,73 @@ class Recipe(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'name'],
-                name='unique_recipe_author',
+                name='unique recipe',
             )
         ]
         verbose_name = ('Рецепты')
-        ordering = ['-date']
+        ordering = ['-pub_date']
 
     def __str__(self):
         return self.name
 
+class IngredientAmountShop(models.Model):
+    """Описывает поля модели для определения количества каждого ингредиента для покупок"""
 
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='ингредиент',
+    )
+    amount = models.IntegerField(
+        default=1,
+        validators=[MinValueValidator(1),],
+        verbose_name=('количество'),
+    )
+
+    class Meta:
+        verbose_name = 'ингредиент для рецепта'
+        verbose_name_plural = 'ингредиенты для рецепта'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_recipe',
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.recipe}, {self.ingredient}, {self.amount}'
+
+
+
+class FavoriteRecipe(models.Model):
+    """Описывает поля модели для избранного рецепта"""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorit',
+        verbose_name='пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorit',
+        verbose_name='рецепт',
+    )
+
+    class Meta:
+        verbose_name = 'избранный рецепт'
+        verbose_name_plural = 'избранные рецепты'
+        ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='unique_favorit')
+        ]
+
+    def __str__(self):
+        return f'{self.user.username}, {self.recipe}'

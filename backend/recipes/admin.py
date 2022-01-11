@@ -5,9 +5,9 @@ from .models import Ingredient, Recipe, Tag
 class RecipeAdmin(admin.ModelAdmin):
 
     list_display = (
-        'name', 'author', 'count_favorite'
+        'name', 'author',
     )
-    list_filter = ('author', 'name', 'tag',)
+    list_filter = ('author', 'name', 'tags',)
     ordering = ['name', ]
 
 
