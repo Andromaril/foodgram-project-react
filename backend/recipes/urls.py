@@ -1,4 +1,6 @@
 from django.urls import include, path
+from recipes.views import RecipeViewSet, TagViewSet, IngredientViewSet
+
 from rest_framework import routers
 
 router = routers.DefaultRouter()
@@ -10,7 +12,7 @@ router.register(r'recipes/(?P<recipe_id>\d+)/shopping_cart',
                 RecipeViewSet,
                 basename='shoprecipe')
 router.register(r'tags', TagViewSet, basename='tag')
-router.register(r'ingredients', IndredientViewSet, basename='ingredient')
+router.register(r'ingredients', IngredientViewSet, basename='ingredient')
 
 
 

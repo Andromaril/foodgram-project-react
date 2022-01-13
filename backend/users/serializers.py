@@ -6,18 +6,6 @@ from rest_framework.validators import UniqueTogetherValidator
 
 User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = [
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-        ]
-
 
 class UserSerializer(serializers.ModelSerializer):
 

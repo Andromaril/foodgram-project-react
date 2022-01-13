@@ -116,6 +116,12 @@ class Recipe(models.Model):
 class IngredientAmountShop(models.Model):
     """Описывает поля модели для определения количества каждого ингредиента для покупок"""
 
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name=('Владелец списка покупок'),
+    )
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -143,7 +149,7 @@ class IngredientAmountShop(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.recipe}, {self.ingredient}, {self.amount}'
+        return f'{self.user.username}, {self.recipe}, {self.ingredient}, {self.amount}'
 
 
 
