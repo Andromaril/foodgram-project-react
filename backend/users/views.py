@@ -1,5 +1,5 @@
 
-from users.serializers import FollowSerializer
+from users.serializers import FollowSerializer, UserSerializer
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -36,3 +36,6 @@ class FollowViewSet(CreateRetrieveViewSet):
             serializer.save(user=self.request.user)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+
+class UserViewSet(CreateRetrieveViewSet):
+    serializer_class = UserSerializer

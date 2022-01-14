@@ -16,6 +16,4 @@ router.register(r'ingredients', IngredientViewSet, basename='ingredient')
 
 
 
-urlpatterns = [
-    path('', include(router.urls)),
-    path('api/', include(router.urls)), ]
+urlpatterns = [ path('', include(router.urls)), ]
