@@ -1,16 +1,16 @@
 from django.contrib import admin
 
-from .models import SignUp, Follow
+from .models import Follow
 
 
-class SignUpAdmin(admin.ModelAdmin):
-    """Класс для настройки отображения модели в интерфейсе админки."""
+#class SignUpAdmin(admin.ModelAdmin):
+    #"""Класс для настройки отображения модели в интерфейсе админки."""
 
-    list_display = ('pk', 'first_name', 'last_name', 'username', 'email',)
-    search_fields = ('email', 'username',)
+    #list_display = ('pk', 'first_name', 'last_name', 'username', 'email',)
+    #search_fields = ('email', 'username',)
 
 
-admin.site.register(SignUp, SignUpAdmin)
+#admin.site.register(SignUp, SignUpAdmin)
 
 class FollowAdmin(admin.ModelAdmin):
     """Класс для настройки отображения модели в интерфейсе админки."""
