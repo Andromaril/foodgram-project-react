@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +25,7 @@ SECRET_KEY = 'l4h89lemxzmcl+*)ny5um)#fbgg^kps_@ug$5vxss-^=vep_9i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', 'backend',]
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', 'backend', ]
 
 
 # Application definition
@@ -97,9 +96,7 @@ DATABASES = {
         #'HOST': os.getenv('DB_HOST'),
         #'PORT': os.getenv('DB_PORT')
     #}
-#} 
-
-
+#}
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -146,18 +143,35 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication'],
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication', ],
 
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 1,    
+    'PAGE_SIZE': 5,
     }
 
 
-SIMPLE_JWT = {
+#SIMPLE_JWT = {
     # Устанавливаем срок жизни токена
-   'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-   'AUTH_HEADER_TYPES': ('Bearer',),
-} 
+   #'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+   #'AUTH_HEADER_TYPES': ('Bearer',),
+#}
+
+DJOSER = {
+    #'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
+    'SERIALIZERS': {
+        #'user_create': 'users.serializers.UserCreateSerializer',
+        'user': 'users.serializers.NewUserSerializer',
+        'current_user': 'users.serializers.NewUserSerializer',
+    },
+    'PERMISSIONS': {
+        'user': ('rest_framework.permissions.AllowAny',),
+        'user_list': ['rest_framework.permissions.AllowAny', ],
+    }
+}
+
+#"auth_token": "8247175fb0b42175420f463a35dcc390b14e7375"

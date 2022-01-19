@@ -1,3 +1,5 @@
 {
-    "python.pythonPath": "c:/Dev/foodgram-project-react/venv/Scripts/python.exe"
+    "python.pythonPath": "c:/Dev/foodgram-project-react/venv/Scripts/python.exe",
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true
 }
