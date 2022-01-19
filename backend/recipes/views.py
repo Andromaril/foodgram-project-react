@@ -2,10 +2,11 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
-from recipes.permissions import IsRecipeOwnerOrReadOnly
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.viewsets import ReadOnlyModelViewSet
+from recipes.permissions import AdminOrReadonly
 
 from .models import (FavoriteRecipe, Ingredient, IngredientAmountShop, Recipe,
                      Tag)
@@ -21,11 +22,12 @@ User = get_user_model()
 class ListRetrieveViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                             viewsets.GenericViewSet):
     pass
-class TagViewSet(ListRetrieveViewSet
-):
+class TagViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (AdminOrReadonly,)
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    pagination_class = None
+
 
 #class IngredientAmountShopViewSet(viewsets.ModelViewSet):
     #queryset = IngredientAmountShop.objects.all()
@@ -46,7 +48,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         #field_name='tags__slug',
         #to_field_name='slug',
         #queryset=Tag.objects.all())
-    permission_classes = [IsRecipeOwnerOrReadOnly]
+    #permission_classes = [IsRecipeOwnerOrReadOnly]
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'POST']:
