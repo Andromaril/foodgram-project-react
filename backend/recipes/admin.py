@@ -22,8 +22,9 @@ class IngredientAdmin(admin.ModelAdmin):
     Description of the "Ingredient" model fields
     for the administration site
     """
-    list_display = ('name', 'unit',)
+    list_display = ('name', )
     search_fields = ('name',)
+
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Ingredient, IngredientAdmin)

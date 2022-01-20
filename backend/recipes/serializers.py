@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from .models import (FavoriteRecipe, Ingredient, IngredientAmountShop,
                      IngredientfromRecipe, Recipe, Tag)
+from users.serializers import NewUserSerializer
 
 User = get_user_model()
 
@@ -18,50 +19,52 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RecipePostSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Tag.objects.all()
-    )
-    author = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-        default=serializers.CurrentUserDefault()
-    )
-    ingredients = IngredientSerializer(many=True)
-    
+class RecipeSerializer(serializers.ModelSerializer):
+
+    author = NewUserSerializer(read_only=True)
+    tags = TagSerializer(read_only=True, many=True)
+    author =  NewUserSerializer(read_only=True)
+    ingredients = IngredientfromRecipe()
     image = Base64ImageField(
         max_length=None, use_url=True,
     )
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
-        fields = ['__all__']
+        fields = ['id', 'tags', 'author', 'ingredients', 'is_favorited',
+                  'is_in_shopping_cart', 'name', 'image', 'text',
+                  'cooking_time']
 
-class RecipeGetSerializer(serializers.ModelSerializer):
+    def get_is_favorited(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Recipe.objects.filter(favorit_for__user=user, id=obj.id).exists()
 
-    class Meta:
-        model = Recipe
-        fields = ['__all__']
-        read_only_fields = ['__all__']
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context.get('request').user
+        #if user.is_anonymous:
+            #return False
+        #return IngredientAmountShop.objects.filter(recipe=obj, user=user).exists()  
+        #request = self.context.get('request')
+        #user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Recipe.objects.filter(shops_recipe__user=user, id=obj.id).exists()
+
 
 
 class IngredientfromRecipe(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all(),
-        source='ingredient.id',
-    )
-    name = serializers.CharField(
-        read_only=True,
-        source='ingredient.name',
-    )
-    unit = serializers.CharField(
-        read_only=True,
-        source='ingredient.unit',
-    )
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.CharField(source='ingredient.name')
+    measurement_unit = serializers.CharField( source='ingredient.unit')
 
     class Meta:
         model = IngredientfromRecipe
-        fields = ('id', 'name', 'amount', 'unit')
+        fields = ('id', 'name', 'amount', 'measurement_unit')
 
 class IngredientAmountShop(serializers.ModelSerializer):
     id = serializers.CharField(
@@ -80,7 +83,7 @@ class IngredientAmountShop(serializers.ModelSerializer):
         read_only=True,
         source='recipe.cooking_time',
     )
-    
+
     class Meta:
         model = IngredientAmountShop
         fields = ['id', 'name', 'image','cooking_time',]

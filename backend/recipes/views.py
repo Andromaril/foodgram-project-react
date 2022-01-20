@@ -5,14 +5,12 @@ from django_filters import rest_framework as filters
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet
 from recipes.permissions import AdminOrReadonly
 
 from .models import (FavoriteRecipe, Ingredient, IngredientAmountShop, Recipe,
                      Tag)
 from .serializers import (IngredientAmountShop, IngredientSerializer,
-                          RecipeGetSerializer, RecipePostSerializer,
-                          TagSerializer)
+                          TagSerializer, RecipeSerializer)
 
 User = get_user_model()
 
@@ -31,7 +29,7 @@ class TagViewSet(viewsets.ModelViewSet):
 
 #class IngredientAmountShopViewSet(viewsets.ModelViewSet):
     #queryset = IngredientAmountShop.objects.all()
-    #serializer_class = IngredientAmountShop 
+    #serializer_class = IngredientAmountShop
 
 class IngredientViewSet(
 ListRetrieveViewSet
@@ -44,19 +42,15 @@ ListRetrieveViewSet
 
 class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
+    #permission_classes = [IsOwnerOrReadOnly, ]
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    #filterset_class = RecipeFilter
     #filterset_fields = filters.ModelMultipleChoiceFilter(
         #field_name='tags__slug',
         #to_field_name='slug',
         #queryset=Tag.objects.all())
     #permission_classes = [IsRecipeOwnerOrReadOnly]
-
-    def get_serializer_class(self):
-        if self.request.method in ['PUT', 'POST']:
-            return RecipePostSerializer
-        return RecipeGetSerializer
-
-    def get_queryset(self):      
-        return Recipe.objects.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -113,7 +107,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_ingredient_shop(self, request, pk=None):
         user = request.user
         recipes = IngredientAmountShop.objects.filter(user=user)
-        
+
         return HttpResponse(recipes, content_type='text/plain')
 
 

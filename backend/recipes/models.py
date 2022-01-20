@@ -41,7 +41,7 @@ class Ingredient(models.Model):
         unique=True,
         verbose_name='Название ингредиента',
     )
-    unit = models.CharField(
+    measurement_unit = models.CharField(
         max_length=100,
         verbose_name='Единица измерения',
     )
@@ -89,7 +89,7 @@ class Recipe(models.Model):
         verbose_name=('Тег'),
     )
 
-    cook_time = models.PositiveSmallIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
         verbose_name=('Время приготовления'),
     )
