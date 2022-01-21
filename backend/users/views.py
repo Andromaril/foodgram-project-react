@@ -14,14 +14,14 @@ User = get_user_model()
 @permission_classes([IsAuthenticated])
 def subscribe(request, following_id):
     author_recipe = get_object_or_404(User, id=following_id)
-
+    follow = Follow.objects.filter(user=request.user,
+                                 following=author_recipe)
     if request.method == 'POST':
         if request.user == author_recipe:
             content = {'field_name': 'Подписаться на себя нельзя'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-        if Follow.objects.filter(user=request.user,
-                                 following=author_recipe).exists():
+        if follow.exists():
             content = {'field_name': 'Подписка уже существует!'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
@@ -31,8 +31,7 @@ def subscribe(request, following_id):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     if request.method == 'DELETE':
-        follow = Follow.objects.filter(user=request.user,
-                                       following=author_recipe)
+    
         if follow.exists():
             follow.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
