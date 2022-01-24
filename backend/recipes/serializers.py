@@ -72,11 +72,14 @@ class RecipeSerializer(serializers.ModelSerializer):
         return data
         
     def create(self, validated_data):
-        image = validated_data.pop('image')
+        #image = validated_data.pop('image')
+        tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(image=image, **validated_data)
-        tags_data = self.initial_data.get('tags')
-        recipe.tags.set(tags_data)
+        #recipe = Recipe.objects.create(image=image, **validated_data)
+        recipe = Recipe.objects.create(**validated_data)
+        #tags_data = self.initial_data.get('tags')
+        #recipe.tags.set(tags_data)
+        recipe.tags.set(tags)
         for ingredient in ingredients:
             IngredientfromRecipe.objects.create(
                 recipe=recipe,
@@ -86,9 +89,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        context = self.context['request']
-        #ingredients = validated_data.pop('ingredients')
-        tags_set = self.initial_data.get('tags')
+        #context = self.context['request']
+        ingredients = validated_data.pop('ingredients')
+        #tags = validated_data.pop('tags')
+        tags = self.initial_data.get('tags')
         recipe = instance
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
@@ -97,10 +101,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
         instance.image = validated_data.get('image', instance.image)
         instance.save()
-        instance.tags.set(tags_set)
+        instance.tags.set(tags)
         IngredientfromRecipe.objects.filter(recipe=instance).delete()
-        ingredients_req = context.data['ingredients']
-        for ingredient in ingredients_req:
+        #ingredients = context.data['ingredients']
+        for ingredient in ingredients:
             ingredient_model = Ingredient.objects.get(id=ingredient['id'])
             IngredientfromRecipe.objects.create(
                 recipe=recipe,
