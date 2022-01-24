@@ -1,26 +1,20 @@
-from django.contrib.auth import get_user_model
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-#from django_filters import rest_framework as filters
-from rest_framework import mixins, permissions, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from recipes.permissions import AdminOrReadonly, IsAuthorAdminOrReadOnly
-from django.http import FileResponse
 import io
-from .filters import RecipeFilter
+
+from django.contrib.auth import get_user_model
+from django.http import FileResponse, HttpResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+#from django_filters import rest_framework as filters
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework.response import Response
 
-from rest_framework import filters
+from recipes.permissions import AdminOrReadonly, IsAuthorAdminOrReadOnly
 
-
-
+from .filters import RecipeFilter
 from .models import (FavoriteRecipe, Ingredient, IngredientAmountShop, Recipe,
                      Tag)
-
-from .serializers import ( IngredientSerializer,
-                          TagSerializer, RecipeSerializer)
-from rest_framework.decorators import api_view
+from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 
 User = get_user_model()
 
@@ -130,6 +124,3 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients_list_bytes = io.BytesIO(ingredients_list.encode("utf-8"))
         return FileResponse(
         ingredients_list_bytes, as_attachment=True, filename="list.txt")
-
-
-

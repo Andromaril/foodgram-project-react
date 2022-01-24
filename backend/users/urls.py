@@ -1,4 +1,5 @@
 from django.urls import include, path
+
 from users.views import subscribe, subscriptions
 
 #app_name = 'users'

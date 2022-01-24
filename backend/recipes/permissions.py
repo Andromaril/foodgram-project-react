@@ -35,6 +35,3 @@ class IsAuthorAdminOrReadOnly(permissions.BasePermission):
                 return True
             return False
         return True
- 
-
-
