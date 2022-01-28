@@ -1,16 +1,11 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from django.shortcuts import get_object_or_404
 
-
+from users.serializers import NewUserSerializer
 
 from .models import (FavoriteRecipe, Ingredient, IngredientAmountShop,
                      IngredientfromRecipe, Recipe, Tag)
-
-from users.serializers import NewUserSerializer
-from django.db import transaction
-
 
 User = get_user_model()
 
@@ -158,6 +153,3 @@ class FavoriteRecipe(serializers.ModelSerializer):
     class Meta:
         model = FavoriteRecipe
         fields = ['id', 'name', 'image','cooking_time',]
-
-
-

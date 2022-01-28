@@ -94,7 +94,7 @@ DATABASES = {
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT')
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 # Password validation
@@ -171,7 +171,7 @@ DJOSER = {
     'PERMISSIONS': {
         'user': ('rest_framework.permissions.AllowAny',),
         'user_list': ['rest_framework.permissions.AllowAny', ],
-    }
+    },
 }
 
 #"auth_token": "8247175fb0b42175420f463a35dcc390b14e7375"
