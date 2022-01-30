@@ -57,12 +57,21 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
+<<<<<<< HEAD
         'ENGINE': os.environ.get('DB_ENGINE'),
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT'),
+=======
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+>>>>>>> fca58941e32d3f9495b98cd6057091faecbf0b27
     }
 }
 
@@ -115,9 +124,15 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
     'SERIALIZERS': {
+<<<<<<< HEAD
         'user_create': 'users.serializers.CustomUserCreateSerializer',
         'user': 'users.serializers.CustomUserSerializer',
         'current_user': 'users.serializers.CustomUserSerializer',
+=======
+        'user_create': 'users.serializers.CustomUserSerializer',
+        'user': 'users.serializers.NewUserSerializer',
+        'current_user': 'users.serializers.NewUserSerializer',
+>>>>>>> fca58941e32d3f9495b98cd6057091faecbf0b27
     },
     'PERMISSIONS': {
         'user': ('rest_framework.permissions.IsAuthenticated',),
