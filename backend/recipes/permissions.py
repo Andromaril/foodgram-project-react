@@ -12,6 +12,7 @@ class IsAdminOrReadOnly(BasePermission):
                 or request.user and request.user.is_staff)
 
 class IsAuthorAdminOrReadOnly(BasePermission):
+
     def has_permission(self, request, view):
         return bool(
             request.method in SAFE_METHODS
@@ -23,7 +24,7 @@ class IsAuthorAdminOrReadOnly(BasePermission):
 
         if request.method == 'GET':
             return True
-        if request.method == 'DELETE' or request.method == 'PATCH' or request.method == 'POST':
+        if request.method == 'DELETE' or request.method == 'POST':
             if (request.user.is_staff
                or obj.author == request.user):
                 return True

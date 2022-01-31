@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from .models import Cart, Favorite, Ingredient, Recipe, Tag, IngredientAmount
+from .models import ShopCart, Favorite, Ingredient, Recipe, Tag, IngredientforRecipe
 
 class IngredientfromRecipenLine(admin.TabularInline):
-    model = IngredientAmount
+    model = IngredientforRecipe
     extra = 1
 
 class TagAdmin(admin.ModelAdmin):
@@ -21,11 +21,11 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = (IngredientfromRecipenLine,)
 
     def count_favorites(self, obj):
-        return obj.favorites.count()
+        return obj.favorite.count()
 
 
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(Cart)
+admin.site.register(ShopCart)
 admin.site.register(Favorite)

@@ -1,9 +1,7 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
 
 from users.views import subscribe, subscriptions
 
-app_name = 'api'
 
 urlpatterns_users_subscribe = [
     path('users/subscriptions/', subscriptions, name='subscriptions'),
