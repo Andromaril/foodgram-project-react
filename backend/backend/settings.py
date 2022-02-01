@@ -2,15 +2,12 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = os.environ.get('DJ_SECRET_KEY'),
-
-DEBUG = False
+SECRET_KEY = 'l4h89lemxzmcl+*)ny5um)#fbgg^kps_@ug$5vxss-^=vep_9i'
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
-    'recipes',
-    'users',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -18,6 +15,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'recipes.apps.RecipesConfig',
+    'users.apps.UsersConfig',
     'rest_framework.authtoken',
     'djoser',
     'corsheaders',
@@ -55,17 +54,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get('DB_ENGINE'),
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
-
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+#DATABASES = {
+    #'default': {
+        #'ENGINE': os.environ.get('DB_ENGINE'),
+        #'NAME': os.environ.get('DB_NAME'),
+        #'USER': os.environ.get('POSTGRES_USER'),
+        #'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        #'HOST': os.environ.get('DB_HOST'),
+        #'PORT': os.environ.get('DB_PORT'),
+
+    #}
+#}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -110,6 +117,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
+    
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 6,
 }
 
 DJOSER = {
