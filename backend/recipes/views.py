@@ -1,34 +1,29 @@
-from django.http import HttpResponse
+import io
+
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
 from rest_framework import status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from .filters import AuthorAndTagFilter, IngredientSearchFilter
-from .models import (ShopCart, Favorite, Ingredient, IngredientforRecipe, Recipe,
-                        Tag)
+from .filters import AuthorAndTagFilter
+from .models import Favorite, Ingredient, Recipe, ShopCart, Tag
 from .pagination import LimitPageNumberPagination
-from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly, IsAuthorAdminOrReadOnly
-from .serializers import (IngredientSerializer,
-                             RecipeSerializer, TagSerializer)
+from .permissions import IsAdminOrReadOnly, IsAuthorAdminOrReadOnly
+from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 
 
-class TagsViewSet(ReadOnlyModelViewSet):
+class TagsViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 
-class IngredientsViewSet(ReadOnlyModelViewSet):
+class IngredientsViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (IngredientSearchFilter,)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -36,12 +31,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     pagination_class = LimitPageNumberPagination
     filter_class = AuthorAndTagFilter
-    #permission_classes = [IsAuthorAdminOrReadOnly]
+    permission_classes = [IsAuthorAdminOrReadOnly]
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-    @action(detail=True, methods=['post', 'delete',], url_path="favorite")          
+    @action(detail=True, methods=['post', 'delete'], url_path="favorite")
     def favorite_recipe_create(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
@@ -50,19 +42,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
             if favorite_recipe.exists():
                 content = {'status': 'этот рецепт уже есть в избранном'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    
+
             Favorite.objects.create(
                 user=user, recipe=recipe)
             return Response(
                 {'status': 'Рецепт добавлен в избранное'},
                 status=status.HTTP_201_CREATED
-        )
+                           )
         if request.method == 'DELETE':
             if favorite_recipe.exists():
                 favorite_recipe.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['post', 'delete',],  url_path="shopping_cart")
+    @action(detail=True, methods=['post', 'delete'],
+            url_path="shopping_cart")
     def shop_cart(self, request, pk):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=pk)
@@ -71,7 +64,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             if shopping_cart.exists():
                 content = {'status': 'Рецепт есть в списке покупок'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        
+
             ShopCart.objects.create(
                 user=self.request.user, recipe=recipe)
             return Response(
@@ -84,30 +77,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    
-    def get_shoppingcart(ist):
-        ingredients_dict = {}
-        for recipe in list:
-            ingredients = IngredientforRecipe.objects.filter(recipe=recipe.recipe)
-            for ingredient in ingredients:
-                amount = ingredient.amount
-                name = ingredient.ingredient.name
-                measurement_unit = ingredient.ingredient.measurement_unit
-                if name not in ingredients_dict:
-                    ingredients_dict[name] = {
-                        'measurement_unit': measurement_unit,
-                        'amount': amount
-                        }
-                else:
-                    ingredients_dict[name]['amount'] += amount
-        shop = []
-        for item in ingredients_dict:
-            shop.append(f'{item} - {ingredients_dict[item]["amount"]} '
-                        f'{ingredients_dict[item]["measurement_unit"]} \n')
-        return shop
 
-
-    def download(list, file):
-        response = HttpResponse(list, 'Content-Type: text/plain')
-        response['Content-Disposition'] = f'attachment; filen="{file}"'
-        return response
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_shop(request):
+    user = request.user
+    cart = user.shop.all()
+    result = {}
+    for recipe in cart:
+        ingredients = recipe.recipe.ingredientforrecipe_set.all()
+        for ingredient in ingredients:
+            amount_in_cart = ingredient.amount
+            ingredient_in_cart_name = ingredient.ingredient.name
+            if ingredient_in_cart_name in result:
+                result[ingredient_in_cart_name] += amount_in_cart
+            else:
+                result[ingredient_in_cart_name] = amount_in_cart
+    ingredients_list = str(result)
+    ingredients_list_bytes = io.BytesIO(ingredients_list.encode("utf-8"))
+    return FileResponse(
+        ingredients_list_bytes, as_attachment=True, filename="list.txt"
+    )

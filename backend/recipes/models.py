@@ -30,7 +30,6 @@ class Tag(models.Model):
     DarkOrange = '#FF8C00'
     Cyan = '#00FFFF'
 
-
     COLOR_CHOICES = [
         (Salmon, 'Salmon'),
         (MediumVioletRed, 'MediumVioletRed'),
