@@ -1,82 +1,88 @@
 import io
-
+from django_filters.rest_framework import DjangoFilterBackend
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from .filters import AuthorAndTagFilter
+from .filters import AuthorAndTagFilter, IngredientsFilter
 from .models import Favorite, Ingredient, Recipe, ShopCart, Tag
-from .pagination import LimitPageNumberPagination
-from .permissions import IsAdminOrReadOnly, IsAuthorAdminOrReadOnly
-from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
+from .pagination import PageSizeNumberPagination
+from .permissions import IsAdminOrReadOnly, IsAuthorAdminOrReadOnly, IsOwnerOrReadOnly
+from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer, RecipeforfavoriteSerializer
 
 
-class TagsViewSet(viewsets.ModelViewSet):
+class TagsViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 
-class IngredientsViewSet(viewsets.ModelViewSet):
+class IngredientsViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('^name',)
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    pagination_class = LimitPageNumberPagination
+    pagination_class = PageSizeNumberPagination
+    #pagination_class = PageNumberPagination
+    #pagination_class.page_size = 6
     filter_class = AuthorAndTagFilter
-    permission_classes = [IsAuthorAdminOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
-    @action(detail=True, methods=['post', 'delete'], url_path="favorite")
-    def favorite_recipe_create(self, request, pk):
+
+    @action(detail=True, methods=['get', 'delete'],
+            permission_classes=[IsAuthenticated])
+    def favorite(self, request, pk=None):
         user = request.user
-        recipe = get_object_or_404(Recipe, id=pk)
-        favorite_recipe = Favorite.objects.filter(recipe=recipe, user=user)
-        if request.method == 'POST':
-            if favorite_recipe.exists():
-                content = {'status': 'этот рецепт уже есть в избранном'}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-            Favorite.objects.create(
-                user=user, recipe=recipe)
-            return Response(
-                {'status': 'Рецепт добавлен в избранное'},
-                status=status.HTTP_201_CREATED
-                           )
-        if request.method == 'DELETE':
-            if favorite_recipe.exists():
-                favorite_recipe.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=['post', 'delete'],
-            url_path="shopping_cart")
-    def shop_cart(self, request, pk):
-        user = self.request.user
-        recipe = get_object_or_404(Recipe, id=pk)
-        shopping_cart = ShopCart.objects.filter(recipe=recipe, user=user)
-        if request.method == 'POST':
-            if shopping_cart.exists():
-                content = {'status': 'Рецепт есть в списке покупок'}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-            ShopCart.objects.create(
-                user=self.request.user, recipe=recipe)
-            return Response(
-                {'status': 'Рецепт добавлен в список покупок'},
-                status=status.HTTP_201_CREATED
-            )
-        if request.method == 'DELETE':
-            if shopping_cart.exists():
-                shopping_cart.delete()
+        favorite = Favorite.objects.filter(user=user, recipe__id=pk)
+        if request.method == 'GET':
+            if favorite.exists():
+                return Response({
+                'errors': 'Рецепт уже добавлен в список'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            recipe = get_object_or_404(Recipe, id=pk)
+            Favorite.objects.create(user=user, recipe=recipe)
+            serializer = RecipeforfavoriteSerializer(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        elif request.method == 'DELETE':
+            if favorite.exists():
+                favorite.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'errors': 'Рецепт уже удален'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['get', 'delete'],
+            permission_classes=[IsAuthenticated])
+    def shopping_cart(self, request, pk=None):
+        user = request.user
+        shop_cart = ShopCart.objects.filter(user=user, recipe__id=pk)
+        if request.method == 'GET':
+            if shop_cart.exists():
+                return Response({
+                'errors': 'Рецепт уже добавлен в список'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            recipe_s = get_object_or_404(Recipe, id=pk)
+            ShopCart.objects.create(user=user, recipe=recipe_s)
+            serializer = RecipeforfavoriteSerializer(recipe_s)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        elif request.method == 'DELETE':
+            if shop_cart.exists():
+                shop_cart.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({
+                'errors': 'Рецепт уже удален'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
