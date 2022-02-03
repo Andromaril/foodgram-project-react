@@ -9,13 +9,13 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.viewsets import ReadOnlyModelViewSet
-
-from .filters import AuthorAndTagFilter, IngredientsFilter
+from django.contrib.auth import get_user_model
+from .filters import AuthorAndTagFilter, IngredientSearchFilter
 from .models import Favorite, Ingredient, Recipe, ShopCart, Tag
 from .pagination import PageSizeNumberPagination
 from .permissions import IsAdminOrReadOnly, IsAuthorAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer, RecipeforfavoriteSerializer
-
+User = get_user_model()
 
 class TagsViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
@@ -27,7 +27,8 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filter_backends = (IngredientSearchFilter,)
+    #filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('^name',)
 
 class RecipeViewSet(viewsets.ModelViewSet):

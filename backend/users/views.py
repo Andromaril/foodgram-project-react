@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from recipes.pagination import PageSizeNumberPagination
 
 from .models import Follow
-from .serializers import FollowSerializer
+from recipes.serializers import FollowSerializer
 User = get_user_model()
 
 

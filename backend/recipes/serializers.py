@@ -1,10 +1,10 @@
-from django_filters.rest_framework import DjangoFilterBackend
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import filters, serializers
 
 from users.serializers import CustomUserSerializer
 
 from .models import Ingredient, IngredientforRecipe, Recipe, Tag
+from users.models import Follow
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -14,8 +14,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    search_fields = ('name',)
 
     class Meta:
         model = Ingredient
@@ -107,3 +105,40 @@ class RecipeSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class RecipeforfavoriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+        read_only_fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='author.id')
+    email = serializers.ReadOnlyField(source='author.email')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
+    is_subscribed = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Follow
+        fields = ('id', 'email', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'count')
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=user, author=obj.id).exists()
+
+    def get_count(self, obj):
+        return Recipe.objects.filter(author=obj.author).count()
+
+    def get_recipes(self, obj):
+        queryset = Recipe.objects.filter(author=obj.author)
+        return RecipeforfavoriteSerializer(queryset, many=True).data
