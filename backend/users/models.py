@@ -5,6 +5,8 @@ User = get_user_model()
 
 
 class Follow(models.Model):
+    """Для подписок"""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -25,6 +27,6 @@ class Follow(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
-                name='follow',
+                name='unique follow',
             )
         ]

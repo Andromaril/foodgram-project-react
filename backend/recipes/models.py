@@ -6,6 +6,8 @@ User = get_user_model()
 
 
 class Ingredient(models.Model):
+    """Для ингредиентов"""
+
     name = models.CharField(max_length=100,
                             verbose_name='Название ингредиента')
     measurement_unit = models.CharField(max_length=100,
@@ -25,6 +27,8 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
+    """Для тегов"""
+
     Salmon = '#FA8072'
     MediumVioletRed = '#C71585'
     DarkOrange = '#FF8C00'
@@ -53,6 +57,8 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
+    """Для рецептов"""
+
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='recipes',
                                verbose_name='Автор рецепта')
@@ -82,6 +88,8 @@ class Recipe(models.Model):
 
 
 class IngredientforRecipe(models.Model):
+    """Промежуточная модель для ингредиента и рецепта"""
+
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -101,11 +109,13 @@ class IngredientforRecipe(models.Model):
         ordering = ['-id']
         constraints = [
             models.UniqueConstraint(fields=['ingredient', 'recipe'],
-                                    name='unique ingredients for recipe')
+                                    name='unique ingredient for recipe')
         ]
 
 
 class Favorite(models.Model):
+    """Для избранного"""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -129,6 +139,8 @@ class Favorite(models.Model):
 
 
 class ShopCart(models.Model):
+    """Для корзины покупок"""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

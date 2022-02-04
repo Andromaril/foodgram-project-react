@@ -1,19 +1,21 @@
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import filters, serializers
-
-from users.serializers import CustomUserSerializer
+from rest_framework import serializers
+from users.models import Follow
+from users.serializers import SubscribeUserSerializer
 
 from .models import Ingredient, IngredientforRecipe, Recipe, Tag
-from users.models import Follow
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Для тегов"""
+
     class Meta:
         model = Tag
         fields = '__all__'
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    """Для ингредиентов"""
 
     class Meta:
         model = Ingredient
@@ -21,6 +23,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientforRecipeSerializer(serializers.ModelSerializer):
+    """Для ингредиентов с возможностью вывода единиц измерений"""
+
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -33,9 +37,11 @@ class IngredientforRecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    """Для рецептов"""
+
     image = Base64ImageField()
     tags = TagSerializer(read_only=True, many=True)
-    author = CustomUserSerializer(read_only=True)
+    author = SubscribeUserSerializer(read_only=True)
     ingredients = IngredientforRecipeSerializer(
         source='ingredientforrecipe_set',
         many=True,
@@ -108,6 +114,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeforfavoriteSerializer(serializers.ModelSerializer):
+    """Используется для вывода информации о
+       рецептах в подписках/избранном/корзине"""
 
     class Meta:
         model = Recipe
@@ -116,6 +124,8 @@ class RecipeforfavoriteSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """Для подписок"""
+
     id = serializers.ReadOnlyField(source='author.id')
     email = serializers.ReadOnlyField(source='author.email')
     username = serializers.ReadOnlyField(source='author.username')

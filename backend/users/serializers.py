@@ -2,13 +2,14 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-
 from users.models import Follow
 
 User = get_user_model()
 
 
-class CustomUserCreateSerializer(UserCreateSerializer):
+class ForUserCreateSerializer(UserCreateSerializer):
+    """Для регистрации пользователя"""
+
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())])
     username = serializers.CharField(
@@ -16,18 +17,13 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'email', 'id', 'password', 'username', 'first_name', 'last_name')
-        extra_kwargs = {
-            'email': {'required': True},
-            'username': {'required': True},
-            'password': {'required': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-        }
+        fields = ('id', 'username', 'first_name',
+                  'last_name', 'email', 'password')
 
 
-class CustomUserSerializer(UserSerializer):
+class SubscribeUserSerializer(UserSerializer):
+    """Для отображения поля подписки"""
+
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
