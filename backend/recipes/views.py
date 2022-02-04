@@ -47,7 +47,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_class = TagFilter
     permission_classes = [IsOwnerOrReadOnly]
 
-    @action(detail=True, methods=['get', 'delete'],
+    @action(detail=True, methods=['GET', 'DELETE'],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
         """Убрать или добавить в избранное"""
@@ -69,12 +69,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response({
                 'errors': 'Рецепт уже удален'
             }, status=status.HTTP_400_BAD_REQUEST)
-        return Response({
-                'error': 'Bad request'
-            }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(detail=True, methods=['get', 'delete'],
-            permission_classes=[IsAuthenticated])
+
+    @action(detail=True, methods=['GET', 'DELETE'],
+            permission_classes=[IsAuthenticated], url_path = 'shopping_cart')
     def shopping_cart(self, request, pk=None):
         """Убрать или добавить в корзину покупок"""
 
@@ -95,9 +93,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response({
                 'errors': 'Рецепт уже удален'
             }, status=status.HTTP_400_BAD_REQUEST)
-        return Response({
-                'error': 'Bad request'
-            }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 
 @api_view(["GET"])

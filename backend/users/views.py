@@ -19,19 +19,6 @@ class CustomUserViewSet(UserViewSet):
 
     pagination_class = PageSizeNumberPagination
 
-    @action(detail=False, permission_classes=[IsAuthenticated])
-    def subscriptions(self, request):
-        """отображение подписок"""
-
-        user = request.user
-        queryset = Follow.objects.filter(user=user)
-        queruset_page = self.paginate_queryset(queryset)
-        serializer = FollowSerializer(
-            queruset_page,
-            many=True,
-            context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['get', 'delete'],
             permission_classes=[IsAuthenticated])
@@ -58,3 +45,17 @@ class CustomUserViewSet(UserViewSet):
             if r.exists():
                 r.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, permission_classes=[IsAuthenticated])
+    def subscriptions(self, request):
+        """отображение подписок"""
+
+        user = request.user
+        queryset = Follow.objects.filter(user=user)
+        queruset_page = self.paginate_queryset(queryset)
+        serializer = FollowSerializer(
+            queruset_page,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
