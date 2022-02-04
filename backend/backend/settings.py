@@ -55,7 +55,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
-# Databaase
+# Databaasee
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
