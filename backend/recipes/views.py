@@ -69,10 +69,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response({
                 'errors': 'Рецепт уже удален'
             }, status=status.HTTP_400_BAD_REQUEST)
-
+        return Response({'errors': 'Bad request'},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(detail=True, methods=['GET', 'DELETE'],
-            permission_classes=[IsAuthenticated], url_path = 'shopping_cart')
+            permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk=None):
         """Убрать или добавить в корзину покупок"""
 
@@ -93,7 +94,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response({
                 'errors': 'Рецепт уже удален'
             }, status=status.HTTP_400_BAD_REQUEST)
-
+        return Response({'errors': 'Bad request'},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(["GET"])

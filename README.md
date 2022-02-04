@@ -16,7 +16,7 @@ docker-compose up -d --build
 
 <h3>Выполните по очереди команды:</h3>
 
-docker-compose exec backend python manage.py migrate 
+
 
 docker-compose exec backend python manage.py createsuperuser
 
