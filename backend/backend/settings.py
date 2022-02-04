@@ -56,7 +56,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 # Databaasee
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+# httsps://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
