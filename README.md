@@ -43,6 +43,3 @@ DB_HOST= # название сервиса (контейнера)
 DB_PORT= # порт для подключения к БД 
 
 https://51.250.23.88/
-
-Login Maria
-Password voron
