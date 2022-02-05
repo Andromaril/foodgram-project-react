@@ -1,5 +1,5 @@
 # praktikum_new_diplom
-![foodgram_workflow](https://github.com/Andromaril/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+![foodgram](https://github.com/Andromaril/foodgram-project-react/actions/workflows/foodgram.yml/badge.svg)
 
 <h2>Описание проекта:</h2>
 На этом сервисе пользователи смогут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
@@ -16,7 +16,7 @@ docker-compose up -d --build
 
 <h3>Выполните по очереди команды:</h3>
 
-
+docker-compose exec backend python manage.py migrate
 
 docker-compose exec backend python manage.py createsuperuser
 
