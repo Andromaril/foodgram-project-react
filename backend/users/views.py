@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
+from recipes.pagination import PageSizeNumberPagination
+from recipes.serializers import FollowSerializer
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -7,8 +9,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Follow
-from recipes.pagination import PageSizeNumberPagination
-from recipes.serializers import FollowSerializer
 
 User = get_user_model()
 

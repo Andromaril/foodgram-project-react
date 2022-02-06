@@ -4,10 +4,10 @@ from .models import (Favorite, Ingredient, IngredientforRecipe, Recipe,
                      ShopCart, Tag)
 
 
-class IngredientfromRecipenLine(admin.TabularInline):
+class IngredientfromRecipenLine(admin.StackedInline):
     model = IngredientforRecipe
     extra = 1
-    list_display = ('name', 'measurement_unit')
+    raw_id_fields = ['ingredient', ]
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -22,6 +22,7 @@ class IngredientAdmin(admin.ModelAdmin):
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author')
     list_filter = ('author', 'name', 'tags')
+    filter_horizpntal = ('ingredient')
     inlines = (IngredientfromRecipenLine,)
 
     def count_favorites(self, obj):

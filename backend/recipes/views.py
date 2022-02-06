@@ -3,14 +3,16 @@ import io
 from django.contrib.auth import get_user_model
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from .filters import IngredientSearchFilter, TagFilter
-from .models import Favorite, Ingredient, Recipe, ShopCart, Tag
+from .filters import IngredientFilter, TagFilter
+from .models import (Favorite, Ingredient, IngredientforRecipe, Recipe,
+                     ShopCart, Tag)
 from .pagination import PageSizeNumberPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (IngredientSerializer, RecipeforfavoriteSerializer,
@@ -33,7 +35,8 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (IngredientSearchFilter,)
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = IngredientFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -95,28 +98,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response({'errors': 'Bad request'},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    @action(detail=False, methods=['get'],
+            permission_classes=[IsAuthenticated])
+    def download_shopping_cart(self, request):
+        user = request.user
+        ingredients = IngredientforRecipe.objects.filter(
+            recipe__shop__user=user).values_list(
+            'ingredient__name', 'ingredient__measurement_unit',
+            'amount')
+        result_shop = {}
+        for item in ingredients:
+            name = item[0]
+            if name not in result_shop:
+                result_shop[name] = {
+                    'единица измерения': item[1],
+                    'количество': item[2]
+                }
+            else:
+                result_shop[name]['amount'] += item[2]
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_shop(request):
-    """Скачать корзину покупок"""
-
-    user = request.user
-    result_shop = {}
-    ingredients = ShopCart.objects.filter(
-        recipe__shop__user=user).values(
-        'ingredient__name', 'ingredient__measurement_unit', 'amount')
-    for item in ingredients:
-        name = item[0]
-        if name not in result_shop:
-            result_shop[name] = {
-                'measurement_unit': item[1],
-                'amount': item[2]
-            }
-        else:
-            result_shop[name]['amount'] += item[2]
-
-    ingredients_shop = str(result_shop)
-    ingredients_shop_bytes = io.BytesIO(ingredients_shop.encode("utf-8"))
-    return FileResponse(ingredients_shop_bytes, as_attachment=True,
-                        filename="ingredients_list.txt")
+        ingredients_shop = str(result_shop)
+        ingredients_shop_bytes = io.BytesIO(ingredients_shop.encode("utf-8"))
+        return FileResponse(ingredients_shop_bytes, as_attachment=True,
+                            filename="ingredients_list.txt")

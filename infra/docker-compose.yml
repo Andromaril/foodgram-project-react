@@ -11,7 +11,9 @@ services:
       - ./.env
 
   backend:
-    image: andromar/foodgramm:latest
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
     restart: always
     volumes:
       - static_files:/code/static/
@@ -22,7 +24,9 @@ services:
       - ./.env
 
   frontend:
-    image: andromar/frontend:5.2022
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
 

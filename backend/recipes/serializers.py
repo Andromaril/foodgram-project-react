@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from users.models import Follow
@@ -60,13 +61,17 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError({
-                'Для рецепта нужны ингредиенты!'})
-
-        cooking_time = self.initial_data.get('cooking_time')
-        if int(cooking_time) <= 0:
-            raise serializers.ValidationError({
-                'cooking_time': 'Время приготовления должно быть больше нуля!'
-            })
+                'ingredients': 'Нужен один ингредиент'})
+        ingredient_list = []
+        for i in ingredients:
+            ingredient = get_object_or_404(Ingredient,
+                                           id=i['id'])
+            ingredient_list.append(ingredient)
+            if int(i['amount']) <= 0:
+                raise serializers.ValidationError({
+                    'ingredients': ('количество не должно равняться 0')
+                })
+        data['ingredients'] = ingredients
         return data
 
     def get_is_favorited(self, obj):
