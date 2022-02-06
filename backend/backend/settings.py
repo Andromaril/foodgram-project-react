@@ -71,7 +71,7 @@ DATABASES = {
 
 
 # Passworefd valwdidation
-# https://docs.djangoprojfect.com/en/3.0/ref/settings/#auth-password-validators
+# https://docs.djanggoprojfect.com/en/3.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
