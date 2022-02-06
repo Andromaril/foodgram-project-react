@@ -29,20 +29,9 @@ class Ingredient(models.Model):
 class Tag(models.Model):
     """Для тегов"""
 
-    Salmon = '#FA8072'
-    MediumVioletRed = '#C71585'
-    DarkOrange = '#FF8C00'
-    Cyan = '#00FFFF'
-
-    COLOR_CHOICES = [
-        (Salmon, 'Salmon'),
-        (MediumVioletRed, 'MediumVioletRed'),
-        (DarkOrange, 'DarkOrange'),
-        (Cyan, 'Cyan'),
-    ]
     name = models.CharField(max_length=100, unique=True,
                             verbose_name='Название')
-    color = models.CharField(max_length=7, unique=True, choices=COLOR_CHOICES,
+    color = models.CharField(max_length=7, unique=True,
                              verbose_name='Цвет')
     slug = models.SlugField(max_length=100, unique=True,
                             verbose_name='слаг')
@@ -132,6 +121,7 @@ class Favorite(models.Model):
     class Meta:
         ordering = ['-id']
         verbose_name = 'Избранное'
+        verbose_name_plural = 'избранные рецепты'
         constraints = [
             models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique favorite')
@@ -157,6 +147,7 @@ class ShopCart(models.Model):
     class Meta:
         ordering = ['-id']
         verbose_name = 'Корзина'
+        verbose_name_plural = 'В корзине'
         constraints = [
             models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique shop for user')

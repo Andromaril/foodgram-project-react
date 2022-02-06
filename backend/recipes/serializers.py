@@ -58,12 +58,19 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
+        #ingredients_list = []
         if not ingredients:
             raise serializers.ValidationError({
                 'Для рецепта нужны ингредиенты!'})
-        data['ingredients'] = ingredients
+
+        cooking_time = self.initial_data.get('cooking_time')
+        if int(cooking_time) <= 0:
+            raise serializers.ValidationError({
+            'cooking_time': 'Время приготовления должно быть больше нуля!'
+                    })
         return data
 
+      
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:

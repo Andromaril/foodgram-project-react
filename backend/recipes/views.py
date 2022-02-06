@@ -1,5 +1,5 @@
 import io
-
+from django.db.models import Sum
 from django.contrib.auth import get_user_model
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -10,12 +10,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from .filters import TagFilter
+from .filters import TagFilter, IngredientSearchFilter
 from .models import Favorite, Ingredient, Recipe, ShopCart, Tag
 from .pagination import PageSizeNumberPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (IngredientSerializer, RecipeforfavoriteSerializer,
                           RecipeSerializer, TagSerializer)
+
+
 
 User = get_user_model()
 
@@ -34,8 +36,9 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    search_fields = ('^name',)
+    filter_backends = (IngredientSearchFilter,)
+    #filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    #search_fields = ('^name',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -104,17 +107,30 @@ def get_shop(request):
     """Скачать корзину покупок"""
 
     user = request.user
-    shop_cart = user.shop.all()
+    #shop_cart = user.shop.all()
     result_shop = {}
-    for recipe in shop_cart:
-        ingredients = recipe.recipe.ingredientforrecipe_set.all()
-        for ingredient in ingredients:
-            amount_in_cart = ingredient.amount
-            ingredient_in_cart_name = ingredient.ingredient.name
-            if ingredient_in_cart_name in result_shop:
-                result_shop[ingredient_in_cart_name] += amount_in_cart
-            else:
-                result_shop[ingredient_in_cart_name] = amount_in_cart
+    ingredients = ShopCart.objects.filter(
+        recipe__shop__user=user).values(
+        'ingredient__name','ingredient__measurement_unit', 'amount')
+    for item in ingredients:
+        name = item[0]
+        if name not in result_shop:
+            result_shop[name] = {
+                'measurement_unit': item[1],
+                'amount': item[2]
+            }
+        else:
+            result_shop[name]['amount'] += item[2]
+    
+    #for recipe in shop_cart:
+        #ingredients = recipe.recipe.ingredientforrecipe_set.all()
+        #for ingredient in ingredients:
+            #amount_in_cart = ingredient.amount
+            #ingredient_in_cart_name = ingredient.ingredient.name
+            #if ingredient_in_cart_name in result_shop:
+                #result_shop[ingredient_in_cart_name] += amount_in_cart
+            #else:
+                #result_shop[ingredient_in_cart_name] = amount_in_cart
     ingredients_shop = str(result_shop)
     ingredients_shop_bytes = io.BytesIO(ingredients_shop.encode("utf-8"))
     return FileResponse(ingredients_shop_bytes, as_attachment=True,

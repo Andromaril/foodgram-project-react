@@ -7,6 +7,7 @@ from .models import (Favorite, Ingredient, IngredientforRecipe, Recipe,
 class IngredientfromRecipenLine(admin.TabularInline):
     model = IngredientforRecipe
     extra = 1
+    list_display = ('name', 'measurement_unit')
 
 
 class TagAdmin(admin.ModelAdmin):
