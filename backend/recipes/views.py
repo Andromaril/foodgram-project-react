@@ -1,23 +1,20 @@
 import io
-from django.db.models import Sum
+
 from django.contrib.auth import get_user_model
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from .filters import TagFilter, IngredientSearchFilter
+from .filters import IngredientSearchFilter, TagFilter
 from .models import Favorite, Ingredient, Recipe, ShopCart, Tag
 from .pagination import PageSizeNumberPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (IngredientSerializer, RecipeforfavoriteSerializer,
                           RecipeSerializer, TagSerializer)
-
-
 
 User = get_user_model()
 
@@ -37,8 +34,6 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (IngredientSearchFilter,)
-    #filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    #search_fields = ('^name',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -50,14 +45,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_class = TagFilter
     permission_classes = [IsOwnerOrReadOnly]
 
-    @action(detail=True, methods=['GET', 'DELETE'],
+    @action(detail=True, methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
         """Убрать или добавить в избранное"""
 
         user = request.user
         favorite = Favorite.objects.filter(user=user, recipe__id=pk)
-        if request.method == 'GET':
+        if request.method == 'POST':
             if favorite.exists():
                 return Response({'errors': 'Рецепт уже добавлен в список'},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -75,14 +70,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response({'errors': 'Bad request'},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(detail=True, methods=['GET', 'DELETE'],
+    @action(detail=True, methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk=None):
         """Убрать или добавить в корзину покупок"""
 
         user = request.user
         shop_cart = ShopCart.objects.filter(user=user, recipe__id=pk)
-        if request.method == 'GET':
+        if request.method == 'POST':
             if shop_cart.exists():
                 return Response({'errors': 'Рецепт уже добавлен в список'},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -107,11 +102,10 @@ def get_shop(request):
     """Скачать корзину покупок"""
 
     user = request.user
-    #shop_cart = user.shop.all()
     result_shop = {}
     ingredients = ShopCart.objects.filter(
         recipe__shop__user=user).values(
-        'ingredient__name','ingredient__measurement_unit', 'amount')
+        'ingredient__name', 'ingredient__measurement_unit', 'amount')
     for item in ingredients:
         name = item[0]
         if name not in result_shop:
@@ -121,16 +115,7 @@ def get_shop(request):
             }
         else:
             result_shop[name]['amount'] += item[2]
-    
-    #for recipe in shop_cart:
-        #ingredients = recipe.recipe.ingredientforrecipe_set.all()
-        #for ingredient in ingredients:
-            #amount_in_cart = ingredient.amount
-            #ingredient_in_cart_name = ingredient.ingredient.name
-            #if ingredient_in_cart_name in result_shop:
-                #result_shop[ingredient_in_cart_name] += amount_in_cart
-            #else:
-                #result_shop[ingredient_in_cart_name] = amount_in_cart
+
     ingredients_shop = str(result_shop)
     ingredients_shop_bytes = io.BytesIO(ingredients_shop.encode("utf-8"))
     return FileResponse(ingredients_shop_bytes, as_attachment=True,
