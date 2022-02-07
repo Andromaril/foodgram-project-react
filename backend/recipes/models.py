@@ -46,13 +46,13 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    """Для рецептов"""
+    """Для Количество ингредиентаов"""
 
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='recipes',
-                               verbose_name='Автор рецепта')
+                               verbose_name='Автор')
     name = models.CharField(max_length=200,
-                            verbose_name='Название рецепта')
+                            verbose_name='Название')
     image = models.ImageField(upload_to='recipes/',
                               verbose_name='Картинка')
     text = models.TextField(verbose_name='Описание')
@@ -66,9 +66,7 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Теги',
     )
-    cooking_time = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1,
-                    message='Время приготовления должно быть больше нуля!')],
+    cooking_time = models.IntegerField(
         verbose_name='Время приготовления')
 
     class Meta:
@@ -78,7 +76,7 @@ class Recipe(models.Model):
 
 
 class IngredientforRecipe(models.Model):
-    """Промежуточная модель для ингредиента и рецепта"""
+    """Промежуточная модель для ингредиента и Количество ингредиентаа"""
 
     ingredient = models.ForeignKey(
         Ingredient,
@@ -88,16 +86,17 @@ class IngredientforRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Рецепт',
+        verbose_name='Количество ингредиента',
     )
-    amount = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1,
-                    'Количество должно быть больше нуля!')],
+    amount = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
         verbose_name='Количество',
     )
 
     class Meta:
         ordering = ['-id']
+        verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'
         constraints = [
             models.UniqueConstraint(fields=['ingredient', 'recipe'],
                                     name='unique ingredient for recipe')
@@ -117,13 +116,13 @@ class Favorite(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='favorite',
-        verbose_name='Рецепт',
+        verbose_name='Количество ингредиента',
     )
 
     class Meta:
         ordering = ['-id']
         verbose_name = 'Избранное'
-        verbose_name_plural = 'избранные рецепты'
+        verbose_name_plural = 'избранные'
         constraints = [
             models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique favorite')
@@ -143,7 +142,7 @@ class ShopCart(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='shop',
-        verbose_name='Рецепт',
+        verbose_name='Количество ингредиента',
     )
 
     class Meta:

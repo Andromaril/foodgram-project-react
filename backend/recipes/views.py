@@ -111,13 +111,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
             name = item[0]
             if name not in result_shop:
                 result_shop[name] = {
-                    'единица измерения': item[1],
-                    'количество': item[2]
+                    'measurement_unit': item[1],
+                    'amount': item[2]
                 }
             else:
                 result_shop[name]['amount'] += item[2]
+        buy_now = []
+        for item in result_shop:
+            buy_now.append(f'{item} - {result_shop[item]["amount"]} '
+                           f'{result_shop[item]["measurement_unit"]}')
 
-        ingredients_shop = str(result_shop)
+        ingredients_shop = str(buy_now)
         ingredients_shop_bytes = io.BytesIO(ingredients_shop.encode("utf-8"))
         return FileResponse(ingredients_shop_bytes, as_attachment=True,
                             filename="ingredients_list.txt")
