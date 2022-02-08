@@ -9,6 +9,8 @@
 
 git clone https://github.com/Andromaril/foodgram-project-react.git
 
+Отредактируйте файл infra/nginx.conf, в строке после server_name впишите свой IP.
+
 Запустить docker-compose и собрать контейнеры  командой  
 docker-compose up -d --build
 

@@ -6,7 +6,7 @@ DEBUG = False
 SECRET_KEY = '_l)vno4ca0!h(6$r4#=jr-tblk_7)n9m_6g0pa=&x1$_ksqpe-'
 
 
-ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'backend', '51.250.23.88', ]
+ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'backend', '51.250.23.88', 'localhost', ]
 
 
 INSTALLED_APPS = [

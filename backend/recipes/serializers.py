@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from users.models import Follow
@@ -64,7 +65,14 @@ class RecipeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     'amount': 'Количество ингредиента не должно быть 0!'
                 })
-
+        recipe = []
+        for ingredient_item in ingredients:
+            ingredient = get_object_or_404(Ingredient,
+                                           id=ingredient_item['id'])
+            if ingredient in recipe:
+                raise serializers.ValidationError(
+                    'Ингредиенты не должны повторяться')
+            recipe.append(ingredient)
         cooking_time = self.initial_data.get('cooking_time')
         if int(cooking_time) <= 0:
             raise serializers.ValidationError({

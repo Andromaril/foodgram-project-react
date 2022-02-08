@@ -23,7 +23,7 @@ class Ingredient(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.name}{self.measurement_unit}'
+        return f'{self.name}, {self.measurement_unit}'
 
 
 class Tag(models.Model):
@@ -66,7 +66,7 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Теги',
     )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления')
 
     class Meta:
@@ -89,7 +89,8 @@ class IngredientforRecipe(models.Model):
         verbose_name='Количество ингредиента',
     )
     amount = models.PositiveIntegerField(
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(1,
+                    'Количество ингредиента не должно быть 0!')],
         verbose_name='Количество',
     )
 

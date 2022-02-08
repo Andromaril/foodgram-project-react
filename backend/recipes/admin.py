@@ -4,10 +4,10 @@ from .models import (Favorite, Ingredient, IngredientforRecipe, Recipe,
                      ShopCart, Tag)
 
 
-class IngredientforRecipeInLine(admin.StackedInline):
+class IngredientforRecipeInLine(admin.TabularInline):
     model = IngredientforRecipe
     extra = 1
-    raw_id_fields = ['ingredient', ]
+    autocomplete_fields = ('ingredient', )
 
 
 class IngredientforRecipe(admin.ModelAdmin):
@@ -17,6 +17,7 @@ class IngredientforRecipe(admin.ModelAdmin):
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'color')
+    list_filter = ('name',)
     search_fields = ('name',)
 
 
@@ -30,7 +31,6 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'count_favorites')
     list_filter = ('author', 'name', 'tags')
     search_fields = ('name',)
-    filter_horizontal = ('ingredient')
     inlines = (IngredientforRecipeInLine,)
 
     def count_favorites(self, obj):
