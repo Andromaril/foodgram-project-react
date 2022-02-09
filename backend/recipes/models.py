@@ -42,7 +42,7 @@ class Tag(models.Model):
         verbose_name_plural = 'Теги'
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 class Recipe(models.Model):
@@ -74,6 +74,9 @@ class Recipe(models.Model):
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
+    def __str__(self):
+        return f'{self.name}'
+
 
 class IngredientforRecipe(models.Model):
     """Промежуточная модель для ингредиента и Количество ингредиентаа"""
@@ -103,6 +106,9 @@ class IngredientforRecipe(models.Model):
                                     name='unique ingredient for recipe')
         ]
 
+    def __str__(self):
+        return f'{self.ingredient.name} {self.recipe.name}'
+
 
 class Favorite(models.Model):
     """Для избранного"""
@@ -117,7 +123,7 @@ class Favorite(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='favorite',
-        verbose_name='Количество ингредиента',
+        verbose_name='Название рецепта',
     )
 
     class Meta:
@@ -128,6 +134,9 @@ class Favorite(models.Model):
             models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique favorite')
         ]
+
+    def __str__(self):
+        return f'{self.user.username} {self.recipe.name}'
 
 
 class ShopCart(models.Model):
@@ -143,7 +152,7 @@ class ShopCart(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='shop',
-        verbose_name='Количество ингредиента',
+        verbose_name='Название рецепта',
     )
 
     class Meta:
@@ -154,3 +163,6 @@ class ShopCart(models.Model):
             models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique shop for user')
         ]
+
+    def __str__(self):
+        return f'{self.user.username} {self.recipe.name}'

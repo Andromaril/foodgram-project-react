@@ -116,10 +116,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 }
             else:
                 result_shop[name]['amount'] += item[2]
-        buy_now = []
+        buy_now = ''
         for item in result_shop:
-            buy_now.append(f'{item} - {result_shop[item]["amount"]} '
-                           f'{result_shop[item]["measurement_unit"]}')
+            buy_now += (f'{item} - {result_shop[item]["amount"]} '
+                        f'{result_shop[item]["measurement_unit"]}\n')
 
         ingredients_shop = str(buy_now)
         ingredients_shop_bytes = io.BytesIO(ingredients_shop.encode("utf-8"))
