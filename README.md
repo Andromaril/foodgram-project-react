@@ -1,4 +1,5 @@
 # praktikum_new_diplom
+
 ![foodgram](https://github.com/Andromaril/foodgram-project-react/actions/workflows/foodgram.yml/badge.svg)
 
 <h2>Описание проекта:</h2>
