@@ -8,16 +8,21 @@
 <h2>Как запустить проект</h2>
 Клонировать репозиторий и перейти в него в командной строке:
 
+```
 git clone https://github.com/Andromaril/foodgram-project-react.git
-
+```
 
 Запустить docker-compose и собрать контейнеры  командой  
+
+```
 docker-compose up -d --build
+```
 
 Теперь в контейнере backend нужно выполнить миграции, создать суперпользователя.
 
 <h3>Выполните по очереди команды:</h3>
 
+```
 docker-compose exec backend python manage.py makemigrations
 
 docker-compose exec backend python manage.py migrate
@@ -25,17 +30,23 @@ docker-compose exec backend python manage.py migrate
 docker-compose exec backend python manage.py createsuperuser
 
 docker-compose exec backend python manage.py collectstatic --noinput
+```
 
 <h3>Oписание команды для заполнения базы данными.</h3>
 
+```
 sudo docker-compose exec backend python manage.py load_ingredients
+```
 
 <h3>Для того, чтобы выключить контейнер, используйте команду</h3>
 
+```
 docker-compose down
+```
 
 <h2>шаблон наполнения env-файла</h2>
 
+```
 DB_ENGINE= # указываем, что работаем с postgresql
 
 DB_NAME= # имя базы данных
@@ -47,9 +58,8 @@ POSTGRES_PASSWORD= # пароль для подключения к БД (уст�
 DB_HOST= # название сервиса (контейнера)
 
 DB_PORT= # порт для подключения к БД 
+```
 
 Проект доступен по адресу:
 http://51.250.23.88/
-Админка
-Login: Test01
-Password: testtest
+
